@@ -1,8 +1,8 @@
 import fs from 'fs';
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
 
-// 1. Initialize SendGrid with your secure API key
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// 1. Initialize Resend with your secure API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 try {
   // 2. Read and parse your lessons.json file
@@ -21,14 +21,14 @@ try {
   const oneDay = 1000 * 60 * 60 * 24;
   const dayOfYear = Math.floor(diff / oneDay);
 
-  // Use the modulo operator (%) to cleanly cycle back to 0 if the day exceeds the list size
+  // Use the modulo operator (%) to cycle back to 0 if the day exceeds the list size
   const lessonIndex = dayOfYear % lessons.length;
   const selectedLesson = lessons[lessonIndex];
 
-  // 4. Construct and dispatch the email payload
-  const emailPayload = {
-    to: process.env.TO_EMAIL,
-    from: process.env.FROM_EMAIL,
+  // 4. Construct and dispatch the email payload via Resend
+  const { data, error } = await resend.emails.send({
+    from: 'Daily Insight <onboarding@resend.dev>',
+    to: [process.env.TO_EMAIL],
     subject: `Daily Insight: Day ${dayOfYear}`,
     text: selectedLesson,
     html: `
@@ -42,10 +42,14 @@ try {
         </footer>
       </div>
     `
-  };
+  });
 
-  await sgMail.send(emailPayload);
-  console.log(`Success: Sent lesson index ${lessonIndex} to your inbox.`);
+  if (error) {
+    console.error('Resend API Error:', error);
+    process.exit(1);
+  }
+
+  console.log(`Success: Sent lesson index ${lessonIndex}. Message ID: ${data.id}`);
 
 } catch (error) {
   console.error('An error occurred while running the script:', error);
