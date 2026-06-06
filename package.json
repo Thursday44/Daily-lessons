@@ -1,0 +1,23 @@
+{
+  "name": "daily-lesson",
+  "version": "1.0.0",
+  "description": "Send yourself a random lesson daily via email - completely free!",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"No tests needed for this project\""
+  },
+  "keywords": [
+    "daily",
+    "lesson",
+    "email",
+    "automation",
+    "github-actions"
+  ],
+  "author": "You",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "@sendgrid/mail": "^8.1.0"
+  }
+}
